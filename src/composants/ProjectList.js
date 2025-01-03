@@ -1,43 +1,42 @@
-// src/composants/UserList.js
+// src/composants/ProjectList.js
 
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { DeleteUserAction } from "../config/action";
+import { DeleteProjectAction } from "../config/action";
 import Swal from "sweetalert2";
 
-function UserList() {
-    const users = useSelector(state => state.users);
+function ProjectList() {
+    const projects = useSelector(state => state.projects);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const handleDelete = (id) => {
-        // Show SweetAlert confirmation dialog
         Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, cancel!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                dispatch(DeleteUserAction(id)); // Dispatch the action to delete the user
-                Swal.fire(
-                    'Deleted!',
-                    'The user has been deleted.',
-                    'success'
-                );
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                Swal.fire(
-                    'Cancelled',
-                    'The user is safe :)',
-                    'error'
-                );
-            }
-        });
-    };
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        dispatch(DeleteProjectAction(id)); // Dispatch the action to delete the user
+                        Swal.fire(
+                            'Deleted!',
+                            'The project has been deleted.',
+                            'success'
+                        );
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire(
+                            'Cancelled',
+                            'The project is safe :)',
+                            'error'
+                        );
+                    }
+                });
+    }
 
     // Inline styles
     const styles = {
@@ -106,8 +105,8 @@ function UserList() {
     return (
         <div style={styles.container}>
             <div style={styles.buttonContainer}>
-                <Link to="/add-user">
-                    <button style={styles.button}>Add User</button>
+                <Link to="/add-project">
+                    <button style={styles.button}>Add Project</button>
                 </Link>
                 <button 
                     onClick={() => navigate('/admin-dashboard')} 
@@ -119,23 +118,25 @@ function UserList() {
             <table style={styles.table}>
                 <thead>
                     <tr>
-                        <th style={styles.th}>Id</th>
-                        <th style={styles.th}>Name</th>
-                        <th style={styles.th}>Email</th>
+                        <th style={styles.th}>ID</th>
+                        <th style={styles.th}>Project Name</th>
+                        <th style={styles.th}>Employee Responsible</th>
+                        <th style={styles.th}>Department Responsible</th>
                         <th style={styles.th}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {users.map((user) => (
-                        <tr key={user.id}>
-                            <td style={styles.td}>{user.id}</td>
-                            <td style={styles.td}>{user.name}</td>
-                            <td style={styles.td}>{user.email}</td>
+                    {projects.map((project, index) => (
+                        <tr key={index}>
+                            <td style={styles.td}>{index + 1}</td> {/* Displaying index + 1 as ID */}
+                            <td style={styles.td}>{project.name}</td>
+                            <td style={styles.td}>{project.employee}</td> {/* Employee name */}
+                            <td style={styles.td}>{project.department}</td> {/* Department name */}
                             <td>
-                                <Link to={`/update-user/${user.id}`}>
+                                <Link to={`/update-project/${project.id}`}>
                                     <button style={styles.editButton}>Edit</button>
                                 </Link>
-                                <button style={styles.deleteButton} onClick={() => handleDelete(user.id)}>Delete</button>
+                                <button style={styles.deleteButton} onClick={() => handleDelete(project.id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
@@ -145,4 +146,4 @@ function UserList() {
     );
 }
 
-export default UserList;
+export default ProjectList;

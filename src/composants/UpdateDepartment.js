@@ -1,35 +1,36 @@
-import { useParams } from "react-router-dom";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { UpdateUserAction } from "../config/action";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
-function UpdateUser () {
+function UpdateDepartment() {
     const { id } = useParams();
-    const user = useSelector(state => state.users.find((u) => u.id === parseInt(id)));
-    const [name, setName] = useState(user ? user.name : '');
-    const [email, setEmail] = useState(user ? user.email : '');
-    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const [name, setName] = useState('');
+
+    useEffect(() => {
+        const departments = JSON.parse(localStorage.getItem('departments')) || [];
+        const department = departments.find(dep => dep.id === parseInt(id));
+        if (department) {
+            setName(department.name);
+        }
+    }, [id]);
 
     const handleClick = (e) => {
         e.preventDefault();
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const updatedUsers = users.map(u => 
-            u.id === parseInt(id) ? { ...u, name, email } : u
+        const departments = JSON.parse(localStorage.getItem('departments')) || [];
+        const updatedDepartments = departments.map(dep => 
+            dep.id === parseInt(id) ? { ...dep, name } : dep
         );
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        localStorage.setItem('departments', JSON.stringify(updatedDepartments));
 
-        // Show SweetAlert notification
+ // Show SweetAlert notification
         Swal.fire({
-            title: 'User  Updated!',
-            text: 'The user details have been updated successfully.',
+            title: 'Department Updated!',
+            text: 'The department has been updated successfully.',
             icon: 'success',
             confirmButtonText: 'OK'
         }).then(() => {
-            navigate('/users'); // Navigate to the users list
+            navigate('/departments'); // Navigate to the departments list
         });
     };
 
@@ -81,21 +82,13 @@ function UpdateUser () {
 
     return (
         <div style={styles.container}>
-            <h2 style={styles.title}>Update User</h2>
+            <h2 style={styles.title}>Update Department</h2>
             <form onSubmit={handleClick}>
-                <label style={styles.label}>Name</label>
+                <label style={styles.label}>Department Name</label>
                 <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    required
-                    style={styles.input}
-                />
-                <label style={styles.label}>Email</label>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     required
                     style={styles.input}
                 />
@@ -105,11 +98,11 @@ function UpdateUser () {
                     onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor}
                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.button.backgroundColor}
                 >
-                    Update User
+                    Update Department
                 </button>
             </form>
         </div>
     );
 }
 
-export default UpdateUser ;
+export default UpdateDepartment;

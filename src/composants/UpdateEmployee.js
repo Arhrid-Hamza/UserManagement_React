@@ -1,35 +1,41 @@
-import { useParams } from "react-router-dom";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { UpdateUserAction } from "../config/action";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
+// src/composants/UpdateEmployee.js
 
-function UpdateUser () {
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import Swal from 'sweetalert2'; // Import SweetAlert2
+import { useSelector } from 'react-redux'; // Import useSelector
+
+function UpdateEmployee() {
     const { id } = useParams();
-    const user = useSelector(state => state.users.find((u) => u.id === parseInt(id)));
-    const [name, setName] = useState(user ? user.name : '');
-    const [email, setEmail] = useState(user ? user.email : '');
-    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const [name, setName] = useState('');
+    const [department, setDepartment] = useState(''); // Initialize department state
+    const departments = useSelector(state => state.departments); // Get departments from Redux state
+    const employees = useSelector(state => state.employees); // Get employees from Redux state
+    const employee = employees.find(emp => emp.id === parseInt(id));
+
+    useEffect(() => {
+        if (employee) {
+            setName(employee.name);
+            setDepartment(employee.department);
+        }
+    }, [id, employee]);
 
     const handleClick = (e) => {
         e.preventDefault();
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const updatedUsers = users.map(u => 
-            u.id === parseInt(id) ? { ...u, name, email } : u
+        const updatedEmployees = employees.map(emp =>
+            emp.id === parseInt(id) ? { ...emp, name, department } : emp
         );
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        localStorage.setItem('employees', JSON.stringify(updatedEmployees));
 
         // Show SweetAlert notification
         Swal.fire({
-            title: 'User  Updated!',
-            text: 'The user details have been updated successfully.',
+            title: 'Employee Updated!',
+            text: 'The employee details have been updated successfully.',
             icon: 'success',
             confirmButtonText: 'OK'
         }).then(() => {
-            navigate('/users'); // Navigate to the users list
+            navigate('/employees'); // Navigate to the employees list
         });
     };
 
@@ -63,6 +69,14 @@ function UpdateUser () {
             borderRadius: '4px',
             fontSize: '1em',
         },
+        select: {
+            width: '100%',
+            padding: '10px',
+            marginBottom: '20px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            fontSize: '1em',
+        },
         button: {
             width: '100%',
             padding: '10px',
@@ -81,7 +95,7 @@ function UpdateUser () {
 
     return (
         <div style={styles.container}>
-            <h2 style={styles.title}>Update User</h2>
+            <h2 style={styles.title}>Update Employee</h2>
             <form onSubmit={handleClick}>
                 <label style={styles.label}>Name</label>
                 <input
@@ -91,25 +105,29 @@ function UpdateUser () {
                     required
                     style={styles.input}
                 />
-                <label style={styles.label}>Email</label>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                <label style={styles.label}>Department</label>
+                <select
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
                     required
-                    style={styles.input}
-                />
+                    style={styles.select}
+                >
+                    <option value="">Select a department</option>
+                    {departments.map((department) => (
+                        <option key={department.id} value={department.name}>{department.name}</option>
+                    ))}
+                </select>
                 <button
                     type="submit"
                     style={styles.button}
                     onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor}
                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.button.backgroundColor}
                 >
-                    Update User
+                    Update Employee
                 </button>
             </form>
         </div>
     );
 }
 
-export default UpdateUser ;
+export default UpdateEmployee;

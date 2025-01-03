@@ -1,35 +1,30 @@
-import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { UpdateUserAction } from "../config/action";
+import { AddDepartmentAction } from "../config/action"; // Ensure this import matches your action file
 import { useNavigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
-function UpdateUser () {
-    const { id } = useParams();
-    const user = useSelector(state => state.users.find((u) => u.id === parseInt(id)));
-    const [name, setName] = useState(user ? user.name : '');
-    const [email, setEmail] = useState(user ? user.email : '');
+function AddDepartment() {
+    const [name, setName] = useState('');
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const handleClick = (e) => {
         e.preventDefault();
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const updatedUsers = users.map(u => 
-            u.id === parseInt(id) ? { ...u, name, email } : u
-        );
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        const newDepartment = {
+            id: Date.now(), // Use a unique ID based on the current timestamp
+            name: name
+        };
+        dispatch(AddDepartmentAction(newDepartment)); // Dispatch the action to add the department
 
         // Show SweetAlert notification
         Swal.fire({
-            title: 'User  Updated!',
-            text: 'The user details have been updated successfully.',
+            title: 'Department Added!',
+            text: 'The department has been added successfully.',
             icon: 'success',
             confirmButtonText: 'OK'
         }).then(() => {
-            navigate('/users'); // Navigate to the users list
+            navigate('/departments'); // Navigate to the departments list
         });
     };
 
@@ -81,21 +76,13 @@ function UpdateUser () {
 
     return (
         <div style={styles.container}>
-            <h2 style={styles.title}>Update User</h2>
+            <h2 style={styles.title}>Add Department</h2>
             <form onSubmit={handleClick}>
-                <label style={styles.label}>Name</label>
+                <label style={styles.label}>Department Name</label>
                 <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    required
-                    style={styles.input}
-                />
-                <label style={styles.label}>Email</label>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     required
                     style={styles.input}
                 />
@@ -105,11 +92,11 @@ function UpdateUser () {
                     onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor}
                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.button.backgroundColor}
                 >
-                    Update User
+                    Add Department
                 </button>
             </form>
         </div>
     );
 }
 
-export default UpdateUser ;
+export default AddDepartment;

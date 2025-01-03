@@ -1,16 +1,26 @@
-// src/composants/UserList.js
-
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { DeleteUserAction } from "../config/action";
-import Swal from "sweetalert2";
+import { DeleteEmployeeAction } from "../config/action"; // Ensure this import matches your action file
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
-function UserList() {
-    const users = useSelector(state => state.users);
+function EmployeesList() {
+    const employees = useSelector(state => state.employees);
+    const departments = useSelector(state => state.departments); // Get departments from Redux state
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const handleDelete = (id) => {
+        const employee = employees.find(emp => emp.id === id);
+        const department = departments.find(dep => dep.name === employee.department);
+        if (department) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Cannot delete employee. Department still exists.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
         // Show SweetAlert confirmation dialog
         Swal.fire({
             title: 'Are you sure?',
@@ -23,23 +33,22 @@ function UserList() {
             cancelButtonText: 'No, cancel!'
         }).then((result) => {
             if (result.isConfirmed) {
-                dispatch(DeleteUserAction(id)); // Dispatch the action to delete the user
+                dispatch(DeleteEmployeeAction(id)); // Dispatch the action to delete the employee
                 Swal.fire(
                     'Deleted!',
-                    'The user has been deleted.',
+                    'The employee has been deleted.',
                     'success'
                 );
             } else if (result.dismiss === Swal.DismissReason.cancel) {
                 Swal.fire(
                     'Cancelled',
-                    'The user is safe :)',
+                    'The employee is safe :)',
                     'error'
                 );
             }
         });
     };
 
-    // Inline styles
     const styles = {
         container: {
             maxWidth: '800px',
@@ -61,11 +70,14 @@ function UserList() {
             borderRadius: '5px',
             cursor: 'pointer',
             fontSize: '16px',
-            backgroundColor: '#4CAF50',
             color: 'white',
         },
         returnButton: {
             backgroundColor: '#4CAF50', // Different color for return button
+        },
+        addButton: {
+            backgroundColor: '#4CAF50',
+            color: 'white',
         },
         table: {
             width: '100%',
@@ -86,6 +98,7 @@ function UserList() {
         editButton: {
             padding: '5px 10px',
             marginRight: '10px',
+            marginLeft: '10px',
             backgroundColor: '#2196F3',
             color: 'white',
             border: 'none',
@@ -106,8 +119,8 @@ function UserList() {
     return (
         <div style={styles.container}>
             <div style={styles.buttonContainer}>
-                <Link to="/add-user">
-                    <button style={styles.button}>Add User</button>
+                <Link to="/add-employee">
+                    <button style={{ ...styles.button, ...styles.addButton }}>Add Employee</button>
                 </Link>
                 <button 
                     onClick={() => navigate('/admin-dashboard')} 
@@ -119,23 +132,23 @@ function UserList() {
             <table style={styles.table}>
                 <thead>
                     <tr>
-                        <th style={styles.th}>Id</th>
+                        <th style={styles.th}>Employee ID</th>
                         <th style={styles.th}>Name</th>
-                        <th style={styles.th}>Email</th>
+                        <th style={styles.th}>Department</th> {/* Added Department Column */}
                         <th style={styles.th}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {users.map((user) => (
-                        <tr key={user.id}>
-                            <td style={styles.td}>{user.id}</td>
-                            <td style={styles.td}>{user.name}</td>
-                            <td style={styles.td}>{user.email}</td>
+                    {employees.map((employee) => (
+                        <tr key={employee.id}>
+                            <td style={styles.td}>{employee.id}</td>
+                            <td style={styles.td}>{employee.name}</td>
+                            <td style={styles.td}>{employee.department}</td> {/* Displaying Department */}
                             <td>
-                                <Link to={`/update-user/${user.id}`}>
+                                <Link to={`/update-employee/${employee.id}`}>
                                     <button style={styles.editButton}>Edit</button>
                                 </Link>
-                                <button style={styles.deleteButton} onClick={() => handleDelete(user.id)}>Delete</button>
+                                <button style={styles.deleteButton} onClick={() => handleDelete(employee.id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
@@ -145,4 +158,4 @@ function UserList() {
     );
 }
 
-export default UserList;
+export default EmployeesList;

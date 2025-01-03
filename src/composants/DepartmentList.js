@@ -1,12 +1,10 @@
-// src/composants/UserList.js
-
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { DeleteUserAction } from "../config/action";
-import Swal from "sweetalert2";
+import { DeleteDepartmentAction, DeleteEmployeeAction } from "../config/action"; // Ensure this import matches your action file
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
-function UserList() {
-    const users = useSelector(state => state.users);
+function DepartmentList() {
+    const departments = useSelector(state => state.departments); 
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -23,23 +21,22 @@ function UserList() {
             cancelButtonText: 'No, cancel!'
         }).then((result) => {
             if (result.isConfirmed) {
-                dispatch(DeleteUserAction(id)); // Dispatch the action to delete the user
+                dispatch(DeleteDepartmentAction(id)); // Dispatch the action to delete the department
                 Swal.fire(
                     'Deleted!',
-                    'The user has been deleted.',
+                    'The department and its employees have been deleted.',
                     'success'
                 );
             } else if (result.dismiss === Swal.DismissReason.cancel) {
                 Swal.fire(
                     'Cancelled',
-                    'The user is safe :)',
+                    'The department is safe :)',
                     'error'
                 );
             }
         });
     };
 
-    // Inline styles
     const styles = {
         container: {
             maxWidth: '800px',
@@ -61,11 +58,14 @@ function UserList() {
             borderRadius: '5px',
             cursor: 'pointer',
             fontSize: '16px',
-            backgroundColor: '#4CAF50',
             color: 'white',
         },
         returnButton: {
             backgroundColor: '#4CAF50', // Different color for return button
+        },
+        addButton: {
+            backgroundColor: '#4CAF50',
+            color: 'white',
         },
         table: {
             width: '100%',
@@ -86,6 +86,7 @@ function UserList() {
         editButton: {
             padding: '5px 10px',
             marginRight: '10px',
+            marginLeft: '10px',
             backgroundColor: '#2196F3',
             color: 'white',
             border: 'none',
@@ -106,8 +107,8 @@ function UserList() {
     return (
         <div style={styles.container}>
             <div style={styles.buttonContainer}>
-                <Link to="/add-user">
-                    <button style={styles.button}>Add User</button>
+                <Link to="/add-department">
+                    <button style={{ ...styles.button, ...styles.addButton }}>Add Department</button>
                 </Link>
                 <button 
                     onClick={() => navigate('/admin-dashboard')} 
@@ -119,23 +120,21 @@ function UserList() {
             <table style={styles.table}>
                 <thead>
                     <tr>
-                        <th style={styles.th}>Id</th>
+                        <th style={styles.th}>Department ID</th>
                         <th style={styles.th}>Name</th>
-                        <th style={styles.th}>Email</th>
                         <th style={styles.th}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {users.map((user) => (
-                        <tr key={user.id}>
-                            <td style={styles.td}>{user.id}</td>
-                            <td style={styles.td}>{user.name}</td>
-                            <td style={styles.td}>{user.email}</td>
+                    {departments.map((department) => (
+                        <tr key={department.id}>
+                            <td style={styles.td}>{department.id}</td>
+                            <td style={styles.td}>{department.name}</td>
                             <td>
-                                <Link to={`/update-user/${user.id}`}>
+                                <Link to={`/update-department/${department.id}`}>
                                     <button style={styles.editButton}>Edit</button>
                                 </Link>
-                                <button style={styles.deleteButton} onClick={() => handleDelete(user.id)}>Delete</button>
+                                <button style={styles.deleteButton} onClick={() => handleDelete(department.id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
@@ -145,4 +144,4 @@ function UserList() {
     );
 }
 
-export default UserList;
+export default DepartmentList;
